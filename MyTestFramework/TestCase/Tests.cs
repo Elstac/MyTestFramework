@@ -1,19 +1,88 @@
-﻿using Core;
-using Xunit;
+﻿using Xunit;
+
 namespace Tests.TestCase
 {
     public class Tests
     {
-        private Core.TestCase testCase;
+        Core.TestCase testCase;
 
         [Fact]
-        public void Call_test_method_from_test_class()
+        public void Call_methods_in_right_order()
         {
-            testCase = new Core.TestCase(typeof(TestClass));
+            testCase = new Core.TestCase(() => { }, () => { });
 
-            testCase.Run("Test");
+            testCase.Run();
 
-            Assert.True(testCase.Runned);
+            Assert.Equal("Setup Run Teardown ",testCase.Log);
+        }
+
+        [Fact]
+        public void Run_test_without_setup_if_setup_is_null()
+        {
+            //Arrange
+            testCase = new Core.TestCase(() => { }, null);
+
+            //Act
+            testCase.Run();
+
+            //Assert
+            Assert.Contains("Run", testCase.Log);
+            Assert.Contains("Teardown", testCase.Log);
+        }
+
+        [Fact]
+        public void Signal_passed_test_after_test_method_passed()
+        {
+            testCase = new Core.TestCase(()=> { }, () => { });
+            
+            testCase.Run();
+
+            Assert.True(testCase.Passed);
+        }
+
+        [Fact]
+        public void Signal_failed_test_after_test_method_failed()
+        {
+            testCase = new Core.TestCase(() => throw new System.Exception(), () => { });
+
+            testCase.Run();
+
+            Assert.False(testCase.Passed);
+        }
+
+        [Fact]
+        public void Signal_failed_test_after_setup_failed()
+        {
+
+            testCase = new Core.TestCase(() => { },() => throw new System.Exception());
+
+            testCase.Run();
+
+            Assert.DoesNotContain("Run", testCase.Log);
+            Assert.False(testCase.Passed);
+        }
+
+        [Fact]
+        public void Add_error_message_with_exception_type_and_message_after_setup_fail()
+        {
+            testCase = new Core.TestCase(() => { }, () => throw new System.Exception("error message"));
+
+            testCase.Run();
+
+            Assert.Equal("Startup failed: System.Exception: error message", testCase.Error);
+        }
+
+        [Fact]
+        public void Add_error_message_with_exception_type_and_message_after_invocation_fail()
+        {
+            testCase = new Core.TestCase(
+                () => throw new System.Exception("error message"), 
+                () => { }
+                );
+
+            testCase.Run();
+
+            Assert.Equal("Method run failed: System.Exception: error message", testCase.Error);
         }
     }
 }
