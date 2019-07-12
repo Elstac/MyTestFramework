@@ -50,7 +50,7 @@ namespace Tests.AssertTests
         [Fact]
         public void Throws_always_fail()
         {
-            Assert.Throws<Core.AssertException>(() => Core.MyAssert.Fail());
+            Assert.Throws<Core.AssertException>(() => Core.MyAssert.Fail("fail"));
         }
 
         [Fact]

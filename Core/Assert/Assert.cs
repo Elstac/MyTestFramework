@@ -8,13 +8,16 @@ namespace Core
         public static void Equal<T>(T expected,T actual)
         {
             if (!expected.Equals(actual))
-                throw new AssertException();
+                throw new AssertException($"Actual value differ from expected.\nExpected: {expected}\nActual: {actual}");
         }
 
         public static void Contains(string actual, string substring)
         {
-            if(string.IsNullOrEmpty(substring) || !actual.Contains(substring))
-                throw new AssertException();    
+            if(string.IsNullOrEmpty(substring))
+                throw new AssertException($"Given substring is null or empty.\n");
+
+            if (!actual.Contains(substring))
+                throw new AssertException($"Given string doesnt contain given substring\nString: {actual}\nSubstring: {substring}");    
         }
 
         public static void Contains<T>(IEnumerable<T> array, T element)
@@ -26,9 +29,9 @@ namespace Core
             throw new AssertException();
         }
 
-        public static void Fail()
+        public static void Fail(string message)
         {
-            throw new AssertException();
+            throw new AssertException(message);
         }
         
 
@@ -42,9 +45,11 @@ namespace Core
             {
                 if (e.GetType() == typeof(T))
                     return;
+
+                throw new AssertException($"Exception of invalid type thrown.\n Exception type: {e.GetType()}\nExpected type: {typeof(T)}");
             }
 
-            throw new AssertException();
+            throw new AssertException($"No exception thrown.\nExpeced type {typeof(T)}");
         }
 
         public static void ThrowsNothing(Action action)
@@ -55,7 +60,7 @@ namespace Core
             }
             catch (Exception)
             {
-                throw new AssertException();
+                throw new AssertException("Exception thrown.");
             }
         }
 
@@ -70,7 +75,7 @@ namespace Core
                 return;
             }
 
-            throw new AssertException();
+            throw new AssertException("No exception thrown.");
         }
     }
 }
