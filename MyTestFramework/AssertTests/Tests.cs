@@ -1,4 +1,5 @@
 ﻿using Xunit;
+using Core;
 
 namespace Tests.AssertTests
 {
@@ -44,40 +45,11 @@ namespace Tests.AssertTests
                 Assert.True(false);
             }
         }
-
-        //Contains
+        
         [Fact]
-        public void Throws_if_string_does_not_contain_substring()
+        public void Throws_always_fail()
         {
-            //Assert
-            Assert.Throws<Core.AssertException>(() => Core.MyAssert.Contains("xx", "xd"));
-        }
-
-        [Fact]
-        public void Throws_nothing_if_string_contains_substring()
-        {
-            try
-            {
-                Core.MyAssert.Contains("pppdfp", "df");
-            }
-            catch (System.Exception)
-            {
-                Assert.True(false);
-            }
-        }
-
-        [Fact]
-        public void Throws_if_substring_is_empty()
-        {
-            //Assert
-            Assert.Throws<Core.AssertException>(() => Core.MyAssert.Contains("xx", ""));
-        }
-
-        [Fact]
-        public void Throws_if_substring_is_null()
-        {
-            //Assert
-            Assert.Throws<Core.AssertException>(() => Core.MyAssert.Contains("xx", null));
+            Assert.Throws<Core.AssertException>(() => Core.MyAssert.Fail());
         }
     }
 }

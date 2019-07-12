@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Core
 {
@@ -14,6 +15,20 @@ namespace Core
         {
             if(string.IsNullOrEmpty(substring) || !actual.Contains(substring))
                 throw new AssertException();    
+        }
+
+        public static void Contains<T>(IEnumerable<T> array, T element)
+        {
+            foreach (var item in array)
+                if (item.Equals(element))
+                    return;
+
+            throw new AssertException();
+        }
+
+        public static void Fail()
+        {
+            throw new AssertException();
         }
     }
 }
