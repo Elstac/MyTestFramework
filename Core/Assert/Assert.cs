@@ -1,4 +1,6 @@
-﻿namespace Core
+﻿using System;
+
+namespace Core
 {
     public class MyAssert
     {
@@ -6,6 +8,12 @@
         {
             if (!expected.Equals(actual))
                 throw new AssertException();
+        }
+
+        public static void Contains(string actual, string substring)
+        {
+            if(string.IsNullOrEmpty(substring) || !actual.Contains(substring))
+                throw new AssertException();    
         }
     }
 }
