@@ -114,7 +114,7 @@ namespace Tests.TestFixtureT
             var report = testFixture.GetReport();
 
             //Assert
-            Assert.Contains("fixture:", report);
+            Assert.Contains("fixture:\n", report);
         }
 
         [Fact]
@@ -128,7 +128,7 @@ namespace Tests.TestFixtureT
             var report = testFixture.GetReport();
 
             //Assert
-            Assert.Contains("TestFixture:", report);
+            Assert.Contains("TestFixture:\n", report);
         }
 
         private class TestMock
