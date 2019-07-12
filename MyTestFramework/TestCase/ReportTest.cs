@@ -50,7 +50,7 @@ namespace Tests.TestCase
             testCase.Run();
 
             //Assert
-            Assert.Contains("TestMethod:", testCase.GetReport());
+            Assert.Contains("TestMethod:\n", testCase.GetReport());
         }
         
         private void TestMethod()

@@ -21,7 +21,7 @@ namespace Core
         }
         public override void Run()
         {
-            report = testMethod.Method.Name + ":";
+            report = $"{testMethod.Method.Name}:\n";
             try
             {
                 SetUp();
