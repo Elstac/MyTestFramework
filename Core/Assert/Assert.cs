@@ -30,5 +30,21 @@ namespace Core
         {
             throw new AssertException();
         }
+        
+
+        public static void Throws<T>(Action action)where T:Exception
+        {
+            try
+            {
+                action.Invoke();
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(T))
+                    return;
+            }
+
+            throw new AssertException();
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Xunit;
 using Core;
+using System;
 
 namespace Tests.AssertTests
 {
@@ -51,5 +52,7 @@ namespace Tests.AssertTests
         {
             Assert.Throws<Core.AssertException>(() => Core.MyAssert.Fail());
         }
+
+
     }
 }
