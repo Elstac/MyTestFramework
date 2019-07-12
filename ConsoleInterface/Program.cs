@@ -18,12 +18,6 @@ namespace ConsoleInterface
 
     class Test
     {
-        [Setup]
-        public void Setup()
-        {
-            throw new InvalidCastException("message");
-        }
-
         [Test]
         public void Fail_always()
         {
@@ -31,9 +25,21 @@ namespace ConsoleInterface
         }
 
         [Test]
-        public void Sucess_always()
+        public void Assert_pass()
         {
+            MyAssert.Equal(10, 10);
+        }
 
+        [Test]
+        public void Assert_fail()
+        {
+            MyAssert.Contains("ffgggs","bvvc");
+        }
+
+        [Test]
+        public void Assert_always_fail()
+        {
+            MyAssert.Fail("Alway fail");
         }
     }
     
