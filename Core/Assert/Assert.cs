@@ -46,5 +46,31 @@ namespace Core
 
             throw new AssertException();
         }
+
+        public static void ThrowsNothing(Action action)
+        {
+            try
+            {
+                action.Invoke();
+            }
+            catch (Exception)
+            {
+                throw new AssertException();
+            }
+        }
+
+        public static void ThrowsAny(Action action)
+        {
+            try
+            {
+                action.Invoke();
+            }
+            catch (Exception)
+            {
+                return;
+            }
+
+            throw new AssertException();
+        }
     }
 }
