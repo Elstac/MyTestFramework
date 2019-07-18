@@ -39,8 +39,30 @@ namespace ConsoleInterface
         [Test]
         public void Assert_always_fail()
         {
-            MyAssert.Fail("Alway fail");
+            MyAssert.Fail("Always fail");
+        }
+
+        [Test]
+        public void Assert_private_tester()
+        {
+            var test = new PrivateClass();
+
+            test.SetValueToTen();
+
+            var PO = new PrivateTester<PrivateClass>();
+            var output = PO.GetPrivateField(test, "kal");
+
+            MyAssert.Equal(10, output);
         }
     }
     
+    class PrivateClass
+    {
+        private int value = 0;
+        
+        public void SetValueToTen()
+        {
+            value = 10;
+        }
+    }
 }
