@@ -1,39 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+﻿using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Core
 {
     public class TestFramework
     {
-        private ITestDetector testDetector;
         private ITestFixtureFactory testFixtureFactory;
         private IDirectoryScanner directoryScanner;
+        private IAssemblyScanner assemblyScanner;
 
         public TestFramework(
-            ITestDetector testDetector,
             ITestFixtureFactory testFixtureFactory, 
-            IDirectoryScanner directoryScanner
+            IDirectoryScanner directoryScanner,
+            IAssemblyScanner assemblyScanner
             )
         {
-            this.testDetector = testDetector;
             this.testFixtureFactory = testFixtureFactory;
             this.directoryScanner = directoryScanner;
-        }
-
-        public Type[] ScanAssembly(Assembly assembly)
-        {
-            var types = assembly.GetTypes();
-
-            var collection = from type in types
-                             where testDetector.IsTestFixture(type)
-                             select type;
-
-            return collection.ToArray();
+            this.assemblyScanner = assemblyScanner;
         }
         
         public string Run(string directory)
@@ -44,7 +28,7 @@ namespace Core
 
             foreach (var assembly in assemblies)
             {
-                var testClasses = ScanAssembly(assembly);
+                var testClasses = assemblyScanner.GetTestsFromAssembly(assembly);
 
                 foreach (var testClass in testClasses)
                     ret.Add(testFixtureFactory.GetTestFixture(testClass));

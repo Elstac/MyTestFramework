@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Tests.PrivateTester.MainPrivateTesterTests
 {
-    public class Tests
+    public class PrivatePropertyTests
     {
         private Core.IPrivateTester privateTester;
 

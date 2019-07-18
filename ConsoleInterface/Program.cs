@@ -9,7 +9,16 @@ namespace ConsoleInterface
         static void Main(string[] args)
         {
             Console.WriteLine(Directory.GetCurrentDirectory());
-            var testFramework = new TestFramework(new TestDetector(), new TestFixtureFactory(new TestDetector()), new DirectoryScanner());
+            var testFramework = new TestFramework(
+                new TestFixtureFactory(
+                    new TestDetector()
+                    ),
+                new DirectoryScanner(),
+                new AssemblyScanner(
+                    new TestDetector()
+                    )
+                );
+
             var report = testFramework.Run(Directory.GetCurrentDirectory());
             Console.WriteLine(report);
             Console.ReadKey();
