@@ -53,6 +53,72 @@ namespace Tests.TestCase
             Assert.Contains("TestMethod:\n", testCase.GetReport());
         }
         
+        [Fact]
+        public void Report_after_assert_fail_does_not_contain_exception_type()
+        {
+            //Arrange
+            testCase = new Core.TestCase(
+                () => { throw new Core.AssertException(); },
+                () => { }
+                );
+
+            //Act
+            testCase.Run();
+
+            //Assert
+            Assert.DoesNotContain("Core.AssertException:", testCase.GetReport());
+        }
+
+        [Fact]
+        public void Report_after_assert_fail_contains_assert_error_message()
+        {
+            //Arrange
+            testCase = new Core.TestCase(
+                () => { throw new Core.AssertException(); },
+                () => { }
+                );
+
+            //Act
+            testCase.Run();
+
+            //Assert
+            Assert.Contains("Assert failed:", testCase.GetReport());
+        }
+
+        [Fact]
+        public void Report_after_assert_fail_does_not_contain_standard_error_message()
+        {
+            //Arrange
+            testCase = new Core.TestCase(
+                () => { throw new Core.AssertException(); },
+                () => { }
+                );
+
+            //Act
+            testCase.Run();
+
+            //Assert
+            Assert.DoesNotContain("Method run failed:", testCase.GetReport());
+        }
+
+        //[Fact]
+        //public void Report_after_assert_fail_contains_assert_method_name()
+        //{
+        //    //Arrange
+        //    var assertInfo = typeof(Core.MyAssert).GetMethod("Fail");
+
+        //    testCase = new Core.TestCase(
+        //        () => { throw new Core.AssertException(assertInfo); },
+        //        () => { }
+        //        );
+
+        //    //Act
+        //    testCase.Run();
+
+        //    //Assert
+        //    Assert.Contains("Assert.Fail() failure:", testCase.GetReport());
+        //}
+
         private void TestMethod()
         {
 

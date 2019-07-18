@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Core
 {
@@ -17,7 +18,7 @@ namespace Core
             Log = "";
             report = "";
             this.testMethod = testMethod;
-            this.setUp = setUp != null?setUp:()=> { };
+            this.setUp = setUp != null ? setUp : () => { };
         }
         public override void Run()
         {
@@ -62,7 +63,15 @@ namespace Core
             }
             catch (Exception e)
             {
-                Error = $"{errorMessage}: { e.GetType()}: {e.Message}";
+                if (e is AssertException)
+                {
+                    Error = $"Assert failed: {e.Message}";
+                }
+                else
+                {
+                    Error = $"{errorMessage}: { e.GetType()}: {e.Message}";
+                }
+
                 throw e;
             }
         }
