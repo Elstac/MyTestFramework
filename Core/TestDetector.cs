@@ -8,6 +8,7 @@ namespace Core
     {
         MethodInfo GetSetupMethodInfo(Type type);
         MethodInfo[] GetTestMethods(Type type);
+        bool IsTestFixture(Type type);
     }
 
     public class TestDetector:ITestDetector
