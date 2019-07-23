@@ -1,25 +1,33 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Core
 {
     public class TestCase:Test
     {
         public string Log { get; set; }
-        public string Error { get; set; }
 
         private string report;
+        private TestReport testReport;
         private Action testMethod;
         private Action setUp;
 
         public TestCase(Action testMethod, Action setUp)
         {
             Passed = true;
+
             Log = "";
             report = "";
+            testReport = new TestReport();
+
             this.testMethod = testMethod;
-            this.setUp = setUp != null ? setUp : () => { };
+            this.setUp = setUp ?? (() => { });
         }
+
+        public TestReport GetReportObject()
+        {
+            return testReport;
+        }
+
         public override void Run()
         {
             report = $"{testMethod.Method.Name}:\n";
@@ -28,26 +36,27 @@ namespace Core
                 SetUp();
                 TestMethod();
                 report += "Test passed";
+                testReport.Result = TestResult.Passed;
             }
             catch (Exception)
             {
                 Passed = false;
-                report += "Test failed. " + Error;
+                testReport.Result = TestResult.Failed;
             }
-            
+
             TearDown();
         }
 
         public void TestMethod()
         {
             Log += "Run ";
-            RunSupervised(testMethod, "Method run failed");
+            RunSupervised(testMethod, "Test run failed");
         }
 
         public void SetUp()
         {
             Log += "Setup ";
-            RunSupervised(setUp, "Startup failed");
+            RunSupervised(setUp, "Setup failed");
         }
 
         public void TearDown()
@@ -65,13 +74,14 @@ namespace Core
             {
                 if (e is AssertException)
                 {
-                    Error = $"Assert failed: {e.Message}";
+                    testReport.Case = "Assertion failed";
                 }
                 else
                 {
-                    Error = $"{errorMessage}: { e.GetType()}: {e.Message}";
+                    testReport.Case = errorMessage;
                 }
 
+                testReport.Exception = e;
                 throw e;
             }
         }

@@ -61,28 +61,5 @@ namespace Tests.TestCase
             Assert.DoesNotContain("Run", testCase.Log);
             Assert.False(testCase.Passed);
         }
-
-        [Fact]
-        public void Add_error_message_with_exception_type_and_message_after_setup_fail()
-        {
-            testCase = new Core.TestCase(() => { }, () => throw new System.Exception("error message"));
-
-            testCase.Run();
-
-            Assert.Equal("Startup failed: System.Exception: error message", testCase.Error);
-        }
-
-        [Fact]
-        public void Add_error_message_with_exception_type_and_message_after_invocation_fail()
-        {
-            testCase = new Core.TestCase(
-                () => throw new System.Exception("error message"), 
-                () => { }
-                );
-
-            testCase.Run();
-
-            Assert.Equal("Method run failed: System.Exception: error message", testCase.Error);
-        }
     }
 }
