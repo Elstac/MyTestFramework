@@ -9,6 +9,7 @@ namespace Core
         MethodInfo GetSetupMethodInfo(Type type);
         MethodInfo[] GetTestMethods(Type type);
         bool IsTestFixture(Type type);
+        MethodInfo GetTeardownMethodInfo(Type type);
     }
 
     public class TestDetector:ITestDetector
@@ -26,15 +27,24 @@ namespace Core
         
         public MethodInfo GetSetupMethodInfo(Type type)
         {
+            return GetMethodWithAttribute<SetupAttribute>(type);
+        }
+
+        public MethodInfo GetTeardownMethodInfo(Type type)
+        {
+            return GetMethodWithAttribute<TeardownAttribute>(type);
+        }
+
+        private MethodInfo GetMethodWithAttribute<T>(Type type) where T:Attribute
+        {
             var methods = type.GetMethods();
 
             return (from method in methods
-                                where HasAttribute<SetupAttribute>(method)
-                                select method)
-                                .FirstOrDefault();
-            
+                    where HasAttribute<T>(method)
+                    select method)
+                    .FirstOrDefault();
         }
-
+        
         public MethodInfo[] GetTestMethods(Type type)
         {
             var methods = type.GetMethods();
@@ -44,6 +54,5 @@ namespace Core
                     select method)
                     .ToArray();
         }
-        
     }
 }

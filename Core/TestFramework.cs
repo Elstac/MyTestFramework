@@ -20,7 +20,7 @@ namespace Core
             this.assemblyScanner = assemblyScanner;
         }
         
-        public string Run(string directory)
+        public IEnumerable<TestReport> Run(string directory)
         {
             var ret = new List<ITest>();
 
@@ -34,15 +34,15 @@ namespace Core
                     ret.Add(testFixtureFactory.GetTestFixture(testClass));
             }
 
-            var report = new StringBuilder();
+            var report = new List<TestReport>();
 
-            foreach (var testFixture in ret)
+            foreach (var fixture in ret)
             {
-                testFixture.Run();
-                report.Append(testFixture.GetReport());
+                fixture.Run();
+                report.Add(fixture.GetReport());
             }
 
-            return report.ToString();
+            return report;
         }
     }
 }

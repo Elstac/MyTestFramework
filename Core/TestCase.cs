@@ -5,52 +5,68 @@ namespace Core
     public class TestCase:Test
     {
         public string Log { get; set; }
-        public string Error { get; set; }
-
-        private string report;
+        
+        private TestReport testReport;
         private Action testMethod;
         private Action setUp;
+        private Action tearDown;
 
         public TestCase(Action testMethod, Action setUp)
         {
-            Passed = true;
             Log = "";
-            report = "";
+            testReport = new TestReport(testMethod.Method);
+
             this.testMethod = testMethod;
-            this.setUp = setUp != null?setUp:()=> { };
+            this.setUp = setUp ?? (() => { });
+            tearDown = () => { };
         }
+
+        public TestCase(Action testMethod, Action setUp, Action tearDown)
+        {
+            Log = "";
+            testReport = new TestReport(testMethod.Method);
+
+            this.testMethod = testMethod;
+            this.setUp = setUp ?? (() => { });
+            this.tearDown = tearDown ?? (() => { });
+        }
+
+        public override TestReport GetReport()
+        {
+            return testReport;
+        }
+
         public override void Run()
         {
-            report = $"{testMethod.Method.Name}:\n";
             try
             {
                 SetUp();
                 TestMethod();
-                report += "Test passed";
+                TearDown();
+                testReport.Result = TestResult.Passed;
             }
             catch (Exception)
             {
-                Passed = false;
-                report += "Test failed. " + Error;
+                testReport.Result = TestResult.Failed;
             }
-            
-            TearDown();
+
         }
 
         public void TestMethod()
         {
             Log += "Run ";
-            RunSupervised(testMethod, "Method run failed");
+            RunSupervised(testMethod, "Test run failed");
         }
 
         public void SetUp()
         {
             Log += "Setup ";
-            RunSupervised(setUp, "Startup failed");
+            RunSupervised(setUp, "Setup failed");
         }
 
         public void TearDown()
         {
+            RunSupervised(tearDown, "Teardown failed");
             Log += "Teardown ";
         }
         
@@ -62,14 +78,18 @@ namespace Core
             }
             catch (Exception e)
             {
-                Error = $"{errorMessage}: { e.GetType()}: {e.Message}";
+                if (e is AssertException)
+                {
+                    testReport.Case = "Assertion failed";
+                }
+                else
+                {
+                    testReport.Case = errorMessage;
+                }
+
+                testReport.Exception = e;
                 throw e;
             }
-        }
-
-        public override string GetReport()
-        {
-            return report;
         }
     }
 }

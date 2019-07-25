@@ -6,7 +6,34 @@ namespace Tests.TestFinder
     public class Tests
     {
         private ITestDetector detector;
-                
+
+        [Fact]
+        public void Return_null_if_class_has_no_teardown_method()
+        {
+            //Arrange
+            detector = new TestDetector();
+
+            //Act
+            MethodInfo result = detector.GetTeardownMethodInfo(typeof(SimpleClass));
+
+            //Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public void Return_teardown_method_if_class_has_teardown_method()
+        {
+            //Arrange
+            detector = new TestDetector();
+            var setup = typeof(TestFixture).GetMethod("TearDown");
+
+            //Act
+            MethodInfo result = detector.GetTeardownMethodInfo(typeof(TestFixture));
+
+            //Assert
+            Assert.Equal(setup, result);
+        }
+
         [Fact]
         public void Return_null_if_class_has_no_setup_method()
         {
@@ -77,6 +104,13 @@ namespace Tests.TestFinder
         {
 
         }
+
+        [Teardown]
+        public void TearDown()
+        {
+
+        }
+
     }
     class MultipleTestFixture:TestFixture
     {
