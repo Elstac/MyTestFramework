@@ -15,7 +15,7 @@ namespace Tests.TestCase
 
             //Act
             testCase.Run();
-            var report = testCase.GetReportObject();
+            var report = testCase.GetReport();
 
             //Assert
             Assert.Equal(TestResult.Passed, report.Result);
@@ -28,7 +28,7 @@ namespace Tests.TestCase
             testCase = new Core.TestCase(() => { }, () => { });
 
             //Act
-            var report = testCase.GetReportObject();
+            var report = testCase.GetReport();
 
             //Assert
             Assert.Equal(TestResult.NotRun, report.Result);
@@ -45,7 +45,7 @@ namespace Tests.TestCase
 
             //Act
             testCase.Run();
-            var report = testCase.GetReportObject();
+            var report = testCase.GetReport();
 
             //Assert
             Assert.Equal(TestResult.Failed, report.Result);
@@ -61,7 +61,7 @@ namespace Tests.TestCase
                 );
 
             //Act
-            var report = testCase.GetReportObject();
+            var report = testCase.GetReport();
 
             //Assert
             Assert.Empty(report.Case);
@@ -78,7 +78,7 @@ namespace Tests.TestCase
 
             //Act
             testCase.Run();
-            var report = testCase.GetReportObject();
+            var report = testCase.GetReport();
 
             //Assert
             Assert.Equal("Setup failed", report.Case);
@@ -95,7 +95,7 @@ namespace Tests.TestCase
 
             //Act
             testCase.Run();
-            var report = testCase.GetReportObject();
+            var report = testCase.GetReport();
 
             //Assert
             Assert.Equal("Test run failed", report.Case);
@@ -112,7 +112,7 @@ namespace Tests.TestCase
 
             //Act
             testCase.Run();
-            var report = testCase.GetReportObject();
+            var report = testCase.GetReport();
 
             //Assert
             Assert.Equal(typeof(System.Exception), report.Exception.GetType());
@@ -130,7 +130,7 @@ namespace Tests.TestCase
 
             //Act
             testCase.Run();
-            var report = testCase.GetReportObject();
+            var report = testCase.GetReport();
 
             //Assert
             Assert.Equal("Assertion failed", report.Case);
@@ -147,11 +147,42 @@ namespace Tests.TestCase
 
             //Act
             testCase.Run();
-            var report = testCase.GetReportObject();
+            var report = testCase.GetReport();
 
             //Assert
             Assert.Equal(typeof(AssertException), report.Exception.GetType());
             Assert.Equal("Assertion message", report.Exception.Message);
+        }
+
+        [Fact]
+        public void Contains_test_method_name()
+        {
+            //Arrange
+            testCase = new Core.TestCase(TestMethod, () => { });
+
+            //Act
+            var report = testCase.GetReport();
+
+            //Assert
+            Assert.Equal("TestMethod", report.Name);
+        }
+
+        [Fact]
+        public void Contains_teardown_fail_as_case_if_teardown_failed()
+        {
+            //Arrange
+            testCase = new Core.TestCase(
+                () => { }, 
+                () => { }, 
+                () => { throw new System.Exception(); }
+                );
+
+            //Act
+            testCase.Run();
+            var report = testCase.GetReport();
+
+            //Assert
+            Assert.Equal("Teardown failed", report.Case);
         }
 
         private void TestMethod()

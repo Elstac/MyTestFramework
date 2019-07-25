@@ -1,5 +1,6 @@
 ﻿using Core;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace ConsoleInterface
@@ -20,8 +21,38 @@ namespace ConsoleInterface
                 );
 
             var report = testFramework.Run(Directory.GetCurrentDirectory());
-            Console.WriteLine(report);
+            Write(report);
+
             Console.ReadKey();
+        }
+
+        private static void Write(IEnumerable<TestReport> reports)
+        {
+            foreach (var report in reports)
+            {
+                Console.WriteLine(report.Name);
+                foreach (var subreport in report.SubReports)
+                {
+                    Console.WriteLine($"Test: {subreport.Name}");
+                    switch (subreport.Result)
+                    {
+                        case TestResult.Passed:
+                            Console.WriteLine("Test passed");
+                            break;
+                        case TestResult.NotRun:
+                            Console.WriteLine("Test not run");
+                            break;
+                        case TestResult.Failed:
+                            Console.WriteLine("Test failed");
+                            Console.WriteLine($"Case: {subreport.Case}");
+                            Console.WriteLine($"Exception: {subreport.Exception.Message}");
+                            break;
+                        default:
+                            Console.WriteLine("Test not run");
+                            break;
+                    }
+                }
+            }
         }
     }
 

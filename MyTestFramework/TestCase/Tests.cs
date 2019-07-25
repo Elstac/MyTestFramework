@@ -1,15 +1,17 @@
-﻿using Xunit;
+﻿using Moq;
+using System;
+using Xunit;
 
 namespace Tests.TestCase
 {
-    public class Tests
+    public class Tests : IDisposable
     {
         Core.TestCase testCase;
 
         [Fact]
         public void Call_methods_in_right_order()
         {
-            testCase = new Core.TestCase(() => { }, () => { });
+            testCase = new Core.TestCase(() => { }, () => { },()=> { });
 
             testCase.Run();
 
@@ -20,7 +22,7 @@ namespace Tests.TestCase
         public void Run_test_without_setup_if_setup_is_null()
         {
             //Arrange
-            testCase = new Core.TestCase(() => { }, null);
+            testCase = new Core.TestCase(() => { }, null, ()=>{ });
 
             //Act
             testCase.Run();
@@ -31,35 +33,31 @@ namespace Tests.TestCase
         }
 
         [Fact]
-        public void Signal_passed_test_after_test_method_passed()
+        public void Run_teardown_method_if_not_null()
         {
-            testCase = new Core.TestCase(()=> { }, () => { });
-            
+            //Arrange
+            testCase = new Core.TestCase(() => { }, () => { }, TearDownMock.TearDown);
+
+            //Act
             testCase.Run();
 
-            Assert.True(testCase.Passed);
+            //Assert
+            Assert.Equal(1, TearDownMock.run);
         }
 
-        [Fact]
-        public void Signal_failed_test_after_test_method_failed()
+        public void Dispose()
         {
-            testCase = new Core.TestCase(() => throw new System.Exception(), () => { });
-
-            testCase.Run();
-
-            Assert.False(testCase.Passed);
+            TearDownMock.run = 0;
         }
 
-        [Fact]
-        public void Signal_failed_test_after_setup_failed()
+        private class TearDownMock
         {
+            public static int run = 0;
 
-            testCase = new Core.TestCase(() => { },() => throw new System.Exception());
-
-            testCase.Run();
-
-            Assert.DoesNotContain("Run", testCase.Log);
-            Assert.False(testCase.Passed);
+            public static void TearDown()
+            {
+                run++;
+            }
         }
     }
 }

@@ -5,46 +5,51 @@ namespace Core
     public class TestCase:Test
     {
         public string Log { get; set; }
-
-        private string report;
+        
         private TestReport testReport;
         private Action testMethod;
         private Action setUp;
+        private Action tearDown;
 
         public TestCase(Action testMethod, Action setUp)
         {
-            Passed = true;
-
             Log = "";
-            report = "";
-            testReport = new TestReport();
+            testReport = new TestReport(testMethod.Method);
 
             this.testMethod = testMethod;
             this.setUp = setUp ?? (() => { });
+            tearDown = () => { };
         }
 
-        public TestReport GetReportObject()
+        public TestCase(Action testMethod, Action setUp, Action tearDown)
+        {
+            Log = "";
+            testReport = new TestReport(testMethod.Method);
+
+            this.testMethod = testMethod;
+            this.setUp = setUp ?? (() => { });
+            this.tearDown = tearDown ?? (() => { });
+        }
+
+        public override TestReport GetReport()
         {
             return testReport;
         }
 
         public override void Run()
         {
-            report = $"{testMethod.Method.Name}:\n";
             try
             {
                 SetUp();
                 TestMethod();
-                report += "Test passed";
+                TearDown();
                 testReport.Result = TestResult.Passed;
             }
             catch (Exception)
             {
-                Passed = false;
                 testReport.Result = TestResult.Failed;
             }
 
-            TearDown();
         }
 
         public void TestMethod()
@@ -61,6 +66,7 @@ namespace Core
 
         public void TearDown()
         {
+            RunSupervised(tearDown, "Teardown failed");
             Log += "Teardown ";
         }
         
@@ -84,11 +90,6 @@ namespace Core
                 testReport.Exception = e;
                 throw e;
             }
-        }
-
-        public override string GetReport()
-        {
-            return report;
         }
     }
 }

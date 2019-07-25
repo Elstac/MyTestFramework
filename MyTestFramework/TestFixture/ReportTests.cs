@@ -1,5 +1,6 @@
 ﻿using Core;
 using Moq;
+using System;
 using Xunit;
 
 namespace Tests.TestFixtureT
@@ -7,76 +8,56 @@ namespace Tests.TestFixtureT
     public class ReportTests
     {
         private Core.TestFixture testFixture;
-
-
+        
         [Fact]
-        public void Report_1_if_only_one_test_exists_in_fixture()
+        public void Result_not_run_if_fixture_not_run()
         {
-            //Arange
+            //Arrange
             testFixture = new Core.TestFixture();
-            testFixture.Add(
-                new Core.TestCase(
-                    () => { },
-                    () => { }
-                ));
 
-            //Act
-            testFixture.Run();
+            //Act 
             var report = testFixture.GetReport();
 
             //Assert
-            Assert.Contains("Test passed: 1.", report);
-        }
-
-
-        [Fact]
-        public void Report_contains_number_of_passed_tests()
-        {
-            //Arange
-            testFixture = new Core.TestFixture();
-            testFixture.Add(
-                new Core.TestCase(
-                    () => { },
-                    () => { }
-                ));
-
-            testFixture.Add(
-                new Core.TestCase(
-                    () => { },
-                    () => { }
-                ));
-
-            //Act
-            testFixture.Run();
-            var report = testFixture.GetReport();
-
-            //Assert
-            Assert.Contains("Test passed: 2.", report);
+            Assert.Equal(TestResult.NotRun, report.Result);
         }
 
         [Fact]
-        public void Report_contains_number_of_failed_tests_whatever_causes_fail()
+        public void Whole_fixture_fails_after_at_least_one_test_fails()
         {
-            //Arange
+            //Arrange
             testFixture = new Core.TestFixture();
-            testFixture.Add(
-                new Core.TestCase(
-                    () => throw new System.Exception(),
-                    () => { }
-                ));
+            var failedTest = new Core.TestCase(() => { }, () => throw new Exception());
+            var succsessfulTest = new Core.TestCase(() => { }, () => { });
 
-            testFixture.Add(
-                new Core.TestCase(
-                    () => { },
-                    () => throw new System.Exception()
-                ));
+            testFixture.Add(succsessfulTest);
+            testFixture.Add(failedTest);
 
             //Act
             testFixture.Run();
             var report = testFixture.GetReport();
 
             //Assert
-            Assert.Contains("Test failed: 2.", report);
+            Assert.Equal(TestResult.Failed, report.Result);
+        }
+
+        [Fact]
+        public void Whole_fixture_pass_after_all_tests_passed()
+        {
+            //Arrange
+            testFixture = new Core.TestFixture();
+            var failedTest = new Core.TestCase(() => { }, () => { });
+            var succsessfulTest = new Core.TestCase(() => { }, () => { });
+
+            testFixture.Add(succsessfulTest);
+            testFixture.Add(failedTest);
+
+            //Act
+            testFixture.Run();
+            var report = testFixture.GetReport();
+
+            //Assert
+            Assert.Equal(TestResult.Passed, report.Result);
         }
 
         [Fact]
@@ -85,11 +66,13 @@ namespace Tests.TestFixtureT
             //Arange
             testFixture = new Core.TestFixture();
 
+            var mockReport = new TestReport();
             var passedTest = new Mock<ITest>();
-            passedTest.Setup(test => test.GetReport()).Returns("cxc");
+            passedTest.Setup(test => test.GetReport()).Returns(mockReport);
 
+            var mockReport2 = new TestReport();
             var failedTest = new Mock<ITest>();
-            failedTest.Setup(test => test.GetReport()).Returns("xcx");
+            failedTest.Setup(test => test.GetReport()).Returns(mockReport2);
 
             testFixture.Add(failedTest.Object);
             testFixture.Add(passedTest.Object);
@@ -99,36 +82,8 @@ namespace Tests.TestFixtureT
             var report = testFixture.GetReport();
 
             //Assert
-            Assert.Contains("cxc", report);
-            Assert.Contains("xcx", report);
-        }
-
-        [Fact]
-        public void Report_contains_test_class_name()
-        {
-            //Arrange
-            testFixture = new Core.TestFixture("fixture");
-
-            //Act
-            testFixture.Run();
-            var report = testFixture.GetReport();
-
-            //Assert
-            Assert.Contains("fixture:\n", report);
-        }
-
-        [Fact]
-        public void Default_name_is_TestFixture()
-        {
-            //Arrange
-            testFixture = new Core.TestFixture();
-
-            //Act
-            testFixture.Run();
-            var report = testFixture.GetReport();
-
-            //Assert
-            Assert.Contains("TestFixture:\n", report);
+            Assert.Contains(mockReport, report.SubReports);
+            Assert.Contains(mockReport2, report.SubReports);
         }
 
         private class TestMock

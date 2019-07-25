@@ -1,31 +1,24 @@
 ﻿using System.Collections.Generic;
-using System.Text;
 
 namespace Core
 {
     public class TestFixture:Test
     {
         List<ITest> tests;
-        private int passed;
-        private int failed;
         private string name;
+        private TestReport report;
 
         public TestFixture()
         {
             name = "TestFixture";
-            Passed = true;
+            report = new TestReport();
             tests = new List<ITest>();
-            passed = 0;
-            failed = 0;
         }
 
         public TestFixture(string name)
         {
             this.name = name;
-            Passed = true;
             tests = new List<ITest>();
-            passed = 0;
-            failed = 0;
         }
 
         public ITest Get(int index)
@@ -43,27 +36,21 @@ namespace Core
             foreach (var test in tests)
             {
                 test.Run();
-                if (!test.Passed)
-                {
-                    Passed = false;
-                    failed++;
-                }
-                else
-                    passed++;
+
+                var subReport = test.GetReport();
+
+                if (subReport.Result == TestResult.Failed)
+                    report.Result = TestResult.Failed;
+
+                report.SubReports.Add(subReport);
             }
+            if (report.Result != TestResult.Failed)
+                report.Result = TestResult.Passed;
         }
 
-        public override string GetReport()
+        public override TestReport GetReport()
         {
-            var sb = new StringBuilder();
-
-            sb.Append($"{name}:\n");
-            sb.Append($"Test passed: {passed}. Test failed: {failed}.\n");
-
-            foreach (var test in tests)
-                sb.Append(test.GetReport()+"\n");
-
-            return sb.ToString();
+            return report;
         }
     }
 }
